@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, User } from "@prisma/client";
+import { Prisma, User, UserSession } from "@prisma/client";
 import { hash } from "bcrypt";
 import { SignUpDTO } from "src/authentication/dto/sign-up.dto";
 import { DatabaseService } from "src/database.service";
@@ -25,6 +25,14 @@ export class UsersService {
 
     async findUserById(id: string): Promise<User> {
         return this.findUserByGivenFilters({ id: id });
+    }
+
+    async findUserSessionById(sessionId: bigint): Promise<UserSession> {
+        return this.database.userSession.findUnique({
+            where: {
+                id: sessionId
+            }
+        })
     }
 
     private async findUserByGivenFilters(filters: Prisma.UserWhereInput): Promise<User> {

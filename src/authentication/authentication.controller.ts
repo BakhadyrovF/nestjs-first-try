@@ -38,10 +38,7 @@ export class AuthenticationController {
             user.id, request.headers['user-agent'], request.ip
         );
 
-        response.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: REFRESH_TOKEN_LIFETIME
-        });
+        this.service.setRefreshTokenToCookie(response, refreshToken);
 
         return {
             accessToken,
@@ -50,10 +47,11 @@ export class AuthenticationController {
     }
 
     @Post('/sign-in')
+    @HttpCode(200)
     async signIn(
         @Req() request: Request,
         @Body() dto: SignInDTO,
-        @Res({ passthrough: true }) response: Response
+        @Res() response: Response
     ) {
         const user = await this.usersService.findUserByEmail(dto.email);
         if (!user) {
@@ -70,14 +68,29 @@ export class AuthenticationController {
             request.ip
         );
 
-        response.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: REFRESH_TOKEN_LIFETIME,
-        });
+        this.service.setRefreshTokenToCookie(response, refreshToken);
 
-        return {
+        return response.send({
             accessToken,
             expiresIn: ACCESS_TOKEN_LIFETIME
-        };
+        });
+    }
+
+    @Post('/access-tokens/refresh')
+    @HttpCode(200)
+    async refreshToken(@Req() request: Request) {
+        const refreshToken = request.cookies.refreshToken;
+
+        if (!refreshToken) {
+            throw new UnauthorizedException('Refresh token is required.');
+        }
+
+        const payload = this.service.verifyRefreshToken(refreshToken);
+        if (!payload) {
+            throw new UnauthorizedException('Invalid refresh token provided.');
+        }
+
+        // const currentSession = await this.service.getSessionById(payload.sessionId);
+
     }
 }

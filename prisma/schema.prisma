@@ -1,59 +1,59 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String        @id @db.Uuid
-  email     String        @unique @db.VarChar(255)
-  username  String        @unique @db.VarChar(255)
-  firstName String?       @db.VarChar(255)
-  lastName  String?       @db.VarChar(255)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  password  String
-  posts     Post[]
-  sessions  UserSession[]
+    id        String        @id @db.Uuid
+    email     String        @unique @db.VarChar(255)
+    username  String        @unique @db.VarChar(255)
+    firstName String?       @db.VarChar(255)
+    lastName  String?       @db.VarChar(255)
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+    password  String
+    posts     Post[]
+    sessions  UserSession[]
 }
 
 model Post {
-  id        String   @id @db.Uuid
-  userId    String   @db.Uuid
-  title     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+    id        String   @id @db.Uuid
+    userId    String   @db.Uuid
+    title     String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    user      User     @relation(fields: [userId], references: [id])
 }
 
 model FileAssociation {
-  id          BigInt   @id @default(autoincrement())
-  type        String
-  targetId    String   @db.Uuid
-  targetModel String   @db.VarChar(50)
-  path        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+    id          BigInt   @id @default(autoincrement())
+    type        String
+    targetId    String   @db.Uuid
+    targetModel String   @db.VarChar(50)
+    path        String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 }
 
 model UserSession {
-  id        BigInt        @id @default(autoincrement())
-  userId    String        @db.Uuid
-  userAgent String
-  ipAddress String?       @db.VarChar(15)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  token     SessionToken?
-  user      User          @relation(fields: [userId], references: [id])
+    id        BigInt        @id @default(autoincrement())
+    userId    String        @unique @db.Uuid
+    isActive  Boolean       @default(true)
+    userAgent String
+    ipAddress String?       @db.VarChar(15)
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+    token     SessionToken?
+    user      User          @relation(fields: [userId], references: [id])
 }
 
 model SessionToken {
-  id            BigInt      @id @default(autoincrement())
-  sessionId     BigInt      @unique
-  refreshToken  String
-  invalidatedAt DateTime?
-  session       UserSession @relation(fields: [sessionId], references: [id])
+    id           BigInt      @id @default(autoincrement())
+    sessionId    BigInt      @unique
+    refreshToken String
+    session      UserSession @relation(fields: [sessionId], references: [id])
 }

@@ -8,7 +8,7 @@ export class SignUpDTO {
 
     @MaxLength(50)
     @IsNotEmpty()
-    @Matches('^[a-zA-Z_.]+$')
+    @Matches('^[a-zA-Z0-9_.]+$')
     username: string;
 
     @MinLength(8)
